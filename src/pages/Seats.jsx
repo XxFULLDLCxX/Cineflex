@@ -1,5 +1,9 @@
 import styled from "styled-components";
 
+const SELECTED = "#0E7D71";
+const AVAILABLE = "#7B8B99";
+const UNAVAILABLE = "#F7C52B";
+
 export default function SeatsPage() {
   return (
     <PageContainer>

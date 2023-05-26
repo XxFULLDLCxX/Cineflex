@@ -5,21 +5,26 @@ import SessionsPage from "../pages/Sessions";
 import SuccessPage from "../pages/Success";
 import { GlobalStyle, ResetStyle } from "../styles";
 import arrow from "../assets/arrow.svg";
+import { BrowserRouter, Route, Routes } from "react-router-dom";
 
 export default function App() {
   return (
     <>
       <ResetStyle />
       <GlobalStyle />
-      <NavContainer>
-        <button data-test="go-home-header-btn"></button>
-        <h1>CINEFLEX</h1>
-      </NavContainer>
+      <BrowserRouter>
+        <NavContainer>
+          <button data-test="go-home-header-btn"></button>
+          <h1>CINEFLEX</h1>
+        </NavContainer>
 
-      <HomePage />
-      {/* <SeatsPage /> */}
-      {/* <SessionsPage /> */}
-      {/* <SuccessPage /> */}
+        <Routes>
+          <Route path="/" element={<HomePage />} />
+          <Route path="/sessoes/:idFilme" element={<SeatsPage />} />
+          <Route path="/assentos/:idSessao" element={<SessionsPage />} />
+          <Route path="/sucesso" element={<SuccessPage />} />
+        </Routes>
+      </BrowserRouter>
     </>
   );
 }
