@@ -1,6 +1,11 @@
-import styled from "styled-components";
+import { Link, useLocation } from 'react-router-dom';
+import styled from 'styled-components';
+import { formatCPF } from '../core';
 
 export default function SuccessPage() {
+  const { movie, info } = useLocation().state;
+  console.log(movie, info);
+
   return (
     <PageContainer>
       <h1>
@@ -11,28 +16,29 @@ export default function SuccessPage() {
         <strong>
           <p>Filme e sessão</p>
         </strong>
-        <p>Tudo em todo lugar ao mesmo tempo</p>
-        <p>03/03/2023 - 14:00</p>
+        <p>{movie.title}</p>
+        <p>{`${movie.data} - ${movie.time}`}</p>
       </TextContainer>
 
       <TextContainer data-test="seats-info">
         <strong>
           <p>Ingressos</p>
         </strong>
-        <p>Assento 01</p>
-        <p>Assento 02</p>
-        <p>Assento 03</p>
+        {info.ids.map((id) => (
+          <p>Assento {String(id).slice(-2)}</p>
+        ))}
       </TextContainer>
 
       <TextContainer data-test="client-info">
         <strong>
           <p>Comprador</p>
         </strong>
-        <p>Nome: Letícia Chijo</p>
-        <p>CPF: 123.456.789-10</p>
+        <p>Nome: {info.name}</p>
+        <p>CPF: {formatCPF(info.cpf)}</p>
       </TextContainer>
-
-      <button data-test="go-home-btn">Voltar para Home</button>
+      <Link data-test="go-home-btn" to="/">
+        <button>Voltar para Home</button>
+      </Link>
     </PageContainer>
   );
 }
@@ -41,7 +47,7 @@ const PageContainer = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  font-family: "Roboto";
+  font-family: 'Roboto';
   font-size: 24px;
   color: #293845;
   margin: 30px 20px;
@@ -54,7 +60,7 @@ const PageContainer = styled.div`
     margin-top: 50px;
   }
   h1 {
-    font-family: "Roboto";
+    font-family: 'Roboto';
     font-style: normal;
     font-weight: 700;
     font-size: 24px;

@@ -1,40 +1,36 @@
-import styled from "styled-components";
+import axios from 'axios';
+import { useEffect, useState } from 'react';
+import { useParams } from 'react-router-dom';
+import styled from 'styled-components';
+import Session from '../components/Session';
 
 export default function SessionsPage() {
+  const { idFilme } = useParams();
+  const [days, setDays] = useState([]);
+  const [movie, setMovie] = useState({});
+
+  useEffect(() => {
+    axios.get(`https://mock-api.driven.com.br/api/v8/cineflex/movies/${idFilme}/showtimes`)
+      .then(response => {
+        setDays(response.data.days);
+        setMovie({ title: response.data.title, posterURL: response.data.posterURL });
+      })
+      .catch(error => alert(error.response.data)); // prettier-ignore
+  }, []);
   return (
     <PageContainer>
       Selecione o horário
       <div>
-        <SessionContainer data-test="movie-day">
-          Sexta - 03/03/2023
-          <ButtonsContainer>
-            <button data-test="showtime">14:00</button>
-            <button data-test="showtime">15:00</button>
-          </ButtonsContainer>
-        </SessionContainer>
-
-        <SessionContainer data-test="movie-day">
-          Sexta - 03/03/2023
-          <ButtonsContainer>
-            <button data-test="showtime">14:00</button>
-            <button data-test="showtime">15:00</button>
-          </ButtonsContainer>
-        </SessionContainer>
-
-        <SessionContainer data-test="movie-day">
-          Sexta - 03/03/2023
-          <ButtonsContainer>
-            <button data-test="showtime">14:00</button>
-            <button data-test="showtime">15:00</button>
-          </ButtonsContainer>
-        </SessionContainer>
+        {days.map((day) => (
+          <Session key={day.id} day={day} movie={movie} />
+        ))}
       </div>
       <FooterContainer data-test="footer">
         <div>
-          <img src={"https://br.web.img2.acsta.net/pictures/22/05/16/17/59/5165498.jpg"} alt="poster" />
+          <img src={movie.posterURL} alt="poster" />
         </div>
         <div>
-          <p>Tudo em todo lugar ao mesmo tempo</p>
+          <p>{movie.title}</p>
         </div>
       </FooterContainer>
     </PageContainer>
@@ -44,7 +40,7 @@ export default function SessionsPage() {
 const PageContainer = styled.div`
   display: flex;
   flex-direction: column;
-  font-family: "Roboto";
+  font-family: 'Roboto';
   font-size: 24px;
   text-align: center;
   color: #293845;
@@ -59,7 +55,7 @@ const SessionContainer = styled.div`
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  font-family: "Roboto";
+  font-family: 'Roboto';
   font-size: 20px;
   color: #293845;
   padding: 0 20px;

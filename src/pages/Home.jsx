@@ -1,25 +1,22 @@
-import styled from "styled-components";
+import axios from 'axios';
+import { useEffect, useState } from 'react';
+import styled from 'styled-components';
+import Movie from '../components/Movie';
 
 export default function HomePage() {
+  const [movies, setMovies] = useState([]);
+  useEffect(() => {
+    axios.get('https://mock-api.driven.com.br/api/v8/cineflex/movies')
+      .then(response => setMovies(response.data))
+      .catch(error => alert(error.response.data)); // prettier-ignore
+  }, []);
   return (
     <PageContainer>
       Selecione o filme
       <ListContainer>
-        <MovieContainer data-test="movie">
-          <img src={"https://br.web.img2.acsta.net/pictures/22/05/16/17/59/5165498.jpg"} alt="poster" />
-        </MovieContainer>
-
-        <MovieContainer data-test="movie">
-          <img src={"https://br.web.img2.acsta.net/pictures/22/05/16/17/59/5165498.jpg"} alt="poster" />
-        </MovieContainer>
-
-        <MovieContainer data-test="movie">
-          <img src={"https://br.web.img2.acsta.net/pictures/22/05/16/17/59/5165498.jpg"} alt="poster" />
-        </MovieContainer>
-
-        <MovieContainer data-test="movie">
-          <img src={"https://br.web.img2.acsta.net/pictures/22/05/16/17/59/5165498.jpg"} alt="poster" />
-        </MovieContainer>
+        {movies.map((m) => (
+          <Movie key={m.id} id={m.id} posterURL={m.posterURL} />
+        ))}
       </ListContainer>
     </PageContainer>
   );
@@ -29,7 +26,7 @@ const PageContainer = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  font-family: "Roboto";
+  font-family: 'Roboto', sans-serif;
   font-size: 24px;
   text-align: center;
   color: #293845;
@@ -43,6 +40,7 @@ const ListContainer = styled.div`
   flex-direction: row;
   padding: 10px;
 `;
+
 const MovieContainer = styled.div`
   width: 145px;
   height: 210px;

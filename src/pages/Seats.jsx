@@ -1,48 +1,73 @@
-import styled from "styled-components";
-
-const SELECTED = "#0E7D71";
-const AVAILABLE = "#7B8B99";
-const UNAVAILABLE = "#F7C52B";
+import axios from 'axios';
+import { useEffect, useState } from 'react';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
+import styled from 'styled-components';
+import Seats from '../components/Seats';
+import { formatCPF } from '../core';
 
 export default function SeatsPage() {
+  const { idSessao } = useParams();
+  const [seats, setSeats] = useState([]);
+  const [info, setInfo] = useState({ ids: [], name: '', cpf: '' });
+  const { movie } = useLocation().state;
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    axios.get(`https://mock-api.driven.com.br/api/v8/cineflex/showtimes/${idSessao}/seats`)
+      .then(response => {
+        setSeats(response.data.seats);
+      })
+      .catch(error => alert(error.response.data)); // prettier-ignore
+  }, []);
+
+  const bookSeat = (e) => {
+    e.preventDefault();
+    if (info.ids.length !== 3) {
+      axios.post('https://mock-api.driven.com.br/api/v8/cineflex/seats/book-many', info)      
+        .then(response => {
+          setSeats(response.data.seats);
+          navigate(`/sucesso/`, { state: { movie, info } });
+        })
+        .catch(error => alert(error.response.data.message ? error.response.data.message: error.message)); // prettier-ignore
+    } else alert('Não selecionou nenhum assento');
+  };
+
   return (
     <PageContainer>
       Selecione o(s) assento(s)
-      <SeatsContainer>
-        <SeatItem data-test="seat">01</SeatItem>
-        <SeatItem data-test="seat">02</SeatItem>
-        <SeatItem data-test="seat">03</SeatItem>
-        <SeatItem data-test="seat">04</SeatItem>
-        <SeatItem data-test="seat">05</SeatItem>
-      </SeatsContainer>
-      <CaptionContainer>
-        <CaptionItem>
-          <CaptionCircle />
-          Selecionado
-        </CaptionItem>
-        <CaptionItem>
-          <CaptionCircle />
-          Disponível
-        </CaptionItem>
-        <CaptionItem>
-          <CaptionCircle />
-          Indisponível
-        </CaptionItem>
-      </CaptionContainer>
-      <FormContainer>
+      <Seats seats={seats} info={info} setInfo={setInfo} />
+      <FormContainer onSubmit={bookSeat}>
         Nome do Comprador:
-        <input data-test="client-name" placeholder="Digite seu nome..." />
+        <input
+          data-test="client-name"
+          placeholder="Digite seu nome..."
+          value={info.name}
+          onChange={({ target: { value } }) => setInfo({ ...info, name: value })}
+          name="username"
+          required
+        />
         CPF do Comprador:
-        <input data-test="client-cpf" placeholder="Digite seu CPF..." />
-        <button data-test="book-seat-btn">Reservar Assento(s)</button>
+        <input
+          data-test="client-cpf"
+          placeholder="Digite seu CPF..."
+          value={formatCPF(info.cpf)}
+          onChange={({ target: { value } }) => setInfo({ ...info, cpf: value.replace(/\D/g, '') })}
+          maxLength="14"
+          pattern="\d{3}\.\d{3}\.\d{3}-\d{2}"
+          name="CPF"
+          required
+        />
+        <button data-test="book-seat-btn" type="submit">
+          Reservar Assento(s)
+        </button>
       </FormContainer>
       <FooterContainer data-test="footer">
         <div>
-          <img src={"https://br.web.img2.acsta.net/pictures/22/05/16/17/59/5165498.jpg"} alt="poster" />
+          <img src={movie.posterURL} alt="poster" />
         </div>
         <div>
-          <p>Tudo em todo lugar ao mesmo tempo</p>
-          <p>Sexta - 14h00</p>
+          <p>{movie.title}</p>
+          <p>{`${movie.weekday} - ${movie.time}`}</p>
         </div>
       </FooterContainer>
     </PageContainer>
@@ -53,7 +78,7 @@ const PageContainer = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  font-family: "Roboto";
+  font-family: 'Roboto';
   font-size: 24px;
   text-align: center;
   color: #293845;
@@ -61,16 +86,7 @@ const PageContainer = styled.div`
   padding-bottom: 120px;
   padding-top: 70px;
 `;
-const SeatsContainer = styled.div`
-  width: 330px;
-  display: flex;
-  flex-direction: row;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: center;
-  margin-top: 20px;
-`;
-const FormContainer = styled.div`
+const FormContainer = styled.form`
   width: calc(100vw - 40px);
   display: flex;
   flex-direction: column;
@@ -83,43 +99,9 @@ const FormContainer = styled.div`
   input {
     width: calc(100vw - 60px);
   }
-`;
-const CaptionContainer = styled.div`
-  display: flex;
-  flex-direction: row;
-  width: 300px;
-  justify-content: space-between;
-  margin: 20px;
-`;
-const CaptionCircle = styled.div`
-  border: 1px solid blue; // Essa cor deve mudar
-  background-color: lightblue; // Essa cor deve mudar
-  height: 25px;
-  width: 25px;
-  border-radius: 25px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin: 5px 3px;
-`;
-const CaptionItem = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  font-size: 12px;
-`;
-const SeatItem = styled.div`
-  border: 1px solid blue; // Essa cor deve mudar
-  background-color: lightblue; // Essa cor deve mudar
-  height: 25px;
-  width: 25px;
-  border-radius: 25px;
-  font-family: "Roboto";
-  font-size: 11px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin: 5px 3px;
+  input:invalid {
+    background-color: #feeddc;
+  }
 `;
 const FooterContainer = styled.div`
   width: 100%;
