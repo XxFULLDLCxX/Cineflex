@@ -26,7 +26,7 @@ export default function SeatsPage() {
       axios.post('https://mock-api.driven.com.br/api/v8/cineflex/seats/book-many', info)      
         .then(response => {
           setSeats(response.data.seats);
-          navigate(`/sucesso/`, { state: { movie, info } });
+          navigate(`/sucesso`, { state: { movie, info } });
         })
         .catch(error => alert(error.response.data.message ? error.response.data.message: error.message)); // prettier-ignore
     } else alert('Não selecionou nenhum assento');
